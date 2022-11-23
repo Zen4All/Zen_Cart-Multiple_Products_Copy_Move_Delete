@@ -7,7 +7,7 @@
  * @version $Id: torvista Apr 21 2020 New in v1.5.7 $
  */
 
-require('includes/application_top.php');
+require 'includes/application_top.php';
 ///////////////////////////////////////////////////////
 //temporary debugging code: to be removed if ever this gets into core code....along with the various debugging echo's
 /**steve for phpStorm inspections
@@ -46,7 +46,7 @@ if ($debug_mpc) {//steve debug
 }
 //eof temporary debugging code
 ///////////////////////////////////////////////////////////
-require(DIR_WS_CLASSES . 'currencies.php');
+require DIR_WS_CLASSES . 'currencies.php';
 $currencies = new currencies();
 
 //////////////////////////////////////////////
@@ -58,9 +58,10 @@ $currencies = new currencies();
 function zen_get_manufacturers_name($manufacturers_id)
 {
     global $db;
-    $manufacturer = $db->Execute("select manufacturers_name
-                                  from " . TABLE_MANUFACTURERS . "
-                                  where manufacturers_id = " . (int)$manufacturers_id . " LIMIT 1");
+    $manufacturer = $db->Execute("SELECT manufacturers_name
+                                  FROM " . TABLE_MANUFACTURERS . "
+                                  WHERE manufacturers_id = " . (int)$manufacturers_id . "
+                                  LIMIT 1");
     if ($manufacturer->EOF) {
         return '';
     }
@@ -90,7 +91,7 @@ function zen_parse_search_string_157(&$objects, $search_str = '')
 
 // Break up $search_str on whitespace; quoted string will be reconstructed later
     $pieces = preg_split('/[[:space:]]+/', $search_str);
-    $objects = array();
+    $objects = [];
     $tmpstring = '';
     $flag = '';
 
@@ -104,7 +105,7 @@ function zen_parse_search_string_157(&$objects, $search_str = '')
             }
         }
 
-        $post_objects = array();
+        $post_objects = [];
 
         while (substr($pieces[$k], -1) == ')') {
             $post_objects[] = ')';
@@ -199,7 +200,7 @@ function zen_parse_search_string_157(&$objects, $search_str = '')
     }
 
 // add default logical operators if needed
-    $temp = array();
+    $temp = [];
     for ($i = 0; $i < (count($objects) - 1); $i++) {
         $temp[] = $objects[$i];
         if (($objects[$i] != 'and') &&
@@ -329,7 +330,9 @@ if ($action === 'find' || $action === 'confirm') { // validate form values from 
         $messageStack->add($error_message);
         $action = '';
     } elseif (!$delete_option) { // build a list of the products already in the target category, not for Delete. This is used in both 'find' and 'confirm'.
-        $check = $db->Execute('SELECT products_id FROM ' . TABLE_PRODUCTS_TO_CATEGORIES . ' WHERE categories_id = ' . $target_category_id);
+        $check = $db->Execute("SELECT products_id
+                               FROM " . TABLE_PRODUCTS_TO_CATEGORIES . "
+                               WHERE categories_id = " . $target_category_id);
         $products_in_target_category = [];
         foreach ($check as $row) {
             $products_in_target_category[] = (int)$row['products_id'];
@@ -391,15 +394,17 @@ if ($action === 'find' || $action === 'confirm') { // validate form values from 
 
 switch ($action) {
     case 'find':
-        $search_sql = 'SELECT p.products_id, p.manufacturers_id, p.master_categories_id, p.products_image, p.products_model, p.products_price_sorter, p.products_quantity, p.products_status, pd.products_name, pd.products_description, m.manufacturers_name, ptoc.categories_id, sp.specials_id
-            FROM ' . TABLE_PRODUCTS . ' p 
-            LEFT JOIN ' . TABLE_MANUFACTURERS . ' m ON p.manufacturers_id = m.manufacturers_id 
-            LEFT JOIN ' . TABLE_SPECIALS . ' sp ON p.products_id = sp.products_id, ' .
-            TABLE_PRODUCTS_DESCRIPTION . ' pd, ' .
-            TABLE_PRODUCTS_TO_CATEGORIES . ' ptoc
-            WHERE p.products_id = pd.products_id 
-            AND p.products_id = ptoc.products_id 
-            AND pd.language_id =  ' . (int)$_SESSION['languages_id'];
+        $search_sql = "SELECT p.products_id, p.manufacturers_id, p.master_categories_id, p.products_image, p.products_model, p.products_price_sorter, p.products_quantity, p.products_status,
+                              pd.products_name, pd.products_description,
+                              m.manufacturers_name, ptoc.categories_id, sp.specials_id
+                       FROM " . TABLE_PRODUCTS . " p 
+                       LEFT JOIN " . TABLE_MANUFACTURERS . " m ON p.manufacturers_id = m.manufacturers_id 
+                       LEFT JOIN " . TABLE_SPECIALS . " sp ON p.products_id = sp.products_id,
+                                 " . TABLE_PRODUCTS_DESCRIPTION . " pd,
+                                 " . TABLE_PRODUCTS_TO_CATEGORIES . " ptoc
+                       WHERE p.products_id = pd.products_id 
+                       AND p.products_id = ptoc.products_id 
+                       AND pd.language_id =  " . (int)$_SESSION['languages_id'];
 
         if ($copy_as === 'delete_specials') {
             $search_sql .= ' AND p.products_id = sp.products_id';
@@ -745,11 +750,10 @@ switch ($action) {
         }
     </style>
 </head>
-<body onload="init()">
-<div id="spiffycalendar" class="text"></div>
+<body>
 <!-- header //-->
 <?php
-require(DIR_WS_INCLUDES . 'header.php');
+require DIR_WS_INCLUDES . 'header.php';
 ?>
 <!-- header_eof //-->
 <!-- body //-->
@@ -1152,8 +1156,10 @@ require(DIR_WS_INCLUDES . 'header.php');
                                 <td class="dataTableContent text-center"><?php echo $search_result['products_quantity']; ?></td>
                                 <td class="dataTableContent"><?php echo $search_result['manufacturers_name']; ?></td>
                             </tr>
-                        <?php }
-                    } ?>
+                        <?php
+                        }
+                    }
+                    ?>
                     </tbody>
                 </table>
                 <?php
@@ -1163,7 +1169,8 @@ require(DIR_WS_INCLUDES . 'header.php');
                 <?php echo "</form>\n";
             } else { // no matching products were found ?>
                 <h4><?php echo TEXT_NO_MATCHING_PRODUCTS_FOUND; ?></h4>
-            <?php }
+            <?php
+            }
             echo zen_draw_form('retry', FILENAME_MULTIPLE_PRODUCT_COPY);
             /* Re-Post all POST'ed variables */
             foreach ($_POST as $key => $value) {
@@ -1239,7 +1246,7 @@ require(DIR_WS_INCLUDES . 'header.php');
 <!-- body_eof //-->
 <!-- footer //-->
 <div class="footer-area">
-    <?php require(DIR_WS_INCLUDES . 'footer.php'); ?>
+    <?php require DIR_WS_INCLUDES . 'footer.php'; ?>
 </div>
 <!-- footer_eof //-->
 <?php
@@ -1260,4 +1267,5 @@ if ($action === 'find') { //disable Confirm button until a selection is made ?>
 ?>
 </body>
 </html>
-<?php require(DIR_WS_INCLUDES . 'application_bottom.php'); ?>
+<?php
+require DIR_WS_INCLUDES . 'application_bottom.php';
